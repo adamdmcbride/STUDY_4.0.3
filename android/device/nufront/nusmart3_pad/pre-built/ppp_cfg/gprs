@@ -1,0 +1,27 @@
+#/etc/ppp/peers/gprs
+# This is pppd script for China Mobile, used Huawei GTM900-B GPRS Module
+# Usage:   root>pppd call gprs
+/dev/ttyACM0
+9600
+crtscts
+#modem
+noauth
+debug
+nodetach
+#hide-password
+usepeerdns
+noipdefault
+defaultroute
+user ""
+#0.0.0.0:0.0.0.0
+ipcp-accept-local
+ipcp-accept-remote
+linkname ppp0
+#lcp-echo-failure  12
+#lcp-echo-interval 3
+#noccp
+#novj
+#novjccomp
+#persist
+connect '/system/bin/chat -s -v'
+#disconnect '/bin/chat -v -f /etc/ppp/gprs-disconnect-chat'

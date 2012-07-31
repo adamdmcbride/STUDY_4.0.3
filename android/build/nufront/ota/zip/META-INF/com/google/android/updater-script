@@ -1,0 +1,18 @@
+show_progress(1.000000, 5);
+
+ui_print("");
+ui_print("+----------------------------------------------+");
+ui_print("|              Nufront    Recovery             |");
+ui_print("|                      OTA                     |");
+ui_print("+----------------------------------------------+");
+ui_print("");
+
+run_program("/system/bin/sh", "/bin/ns2816/unzip_update.sh", "unzip");
+ifelse(file_getprop("/tmp/file.prop","value") == "succsee",ui_print("start to upload file:"),ui_print("Your TF/SD card has not enough space for update stsrem!"));
+
+run_program("/system/bin/sh", "/tmp/update.sh", "OTA test");
+
+ifelse(file_getprop("/tmp/file.prop","value") == "succsee",ui_print("succsee to update system!"),ui_print("Fail to update system,check if your TF/SD card has enough space!"));
+
+set_progress(1.000000);
+

@@ -1,0 +1,52 @@
+// Sensors Configuration (ALL VALUES MUST BE IN HEX FORMAT)
+0x02  // Number of Sensors (1 - 4)
+0x02  //        Ignored by LM: I2C bus speed (0 - Low, 1 - Standard, 2 - Fast, 3 - Fast_Plus, 4 - High)
+
+// Configuration for Sensor #1 (gyro)
+0x0068  //        Ignored by LM: Sensor I2C Address (7 or 10 bit)
+0x04    // Sensor Type (1 - Accel, 2 - Magn, 3 - Press, 4 - Gyro, 5 - Accel_Gyro, 6 - Accel_Magn, 7 - Gyro_Magn, 8 - Accel_Magn_Gyro)
+0x00    //        Ignored by LM: Initialization period after power up for Sensor, unit: 10ms 
+0xDD    // Data type (bit 0) = 1 (signed)
+        // Number of bytes to read from each register (bits 1-3) = 6 (2 * 3 axis)
+        // Data Resolution (bits 4-7) = 0xD (13 bits )
+0x05    // Sample rate: 1- 1hz, 2- 2hz, 3- 5hz, 4- 10hz, 5- 25hz, 6- 50hz, 7- 100Hz
+0x03    // Send Rate:   1- 1hz, 2- 2hz, 3- 5hz, 4- 10hz, 5- 25hz, 6- 50hz, 7- 100Hz
+0x00    // Data decimation method (bits 0-2): 0- raw, 1- averaging, 2- sliding median
+0x20    //        Ignored by LM: Acquisition time delay, unit: 10us 
+0x00    //        Ignored by LM: Number of sensor read registers
+0x01    //        Ignored by LM: Measurement State: 0 - auto (sensor configured) 1 - forced (sw controlling)  was 0x00
+0x1B    //        Ignored by LM: Address of the Register to controls the sensor power states 
+0x00    //        Ignored by LM: Setting for Stand-by mode
+0x80    //        Ignored by LM: Setting for Active mode
+0x00    //        Ignored by LM: Number of Initialization Registers to be read 
+0x00    //        Ignored by LM: Number of sensor control registers
+0x20    //        Ignored by LM: Time delay between two consecutive register writes, unit: ms 
+
+// Configuration for Sensor #2 (accelerometer)
+0x000F  //        Ignored by LM: Sensor I2C Address (7 or 10 bit)
+0x01    // Sensor Type (1 - Accel, 2 - Magn, 3 - Press, 4 - Gyro, 5 - Accel_Gyro, 6 - Accel_Magn, 7 - Gyro_Magn, 8 - Accel_Magn_Gyro)
+0x00    //        Ignored by LM: Initialization period after power up for Sensor, unit: 10ms 
+0xDD    // Data type (bit 0) = 1 (signed)
+        // Number of bytes to read from each register (bits 1-3) = 6 (2 * 3 axis)
+        // Data Resolution (bits 4-7) = 0xD (13 bits )
+0x06    // Sample rate: 1- 1hz, 2- 2hz, 3- 5hz, 4- 10hz, 5- 25hz, 6- 50hz, 7- 100Hz
+0x03    // Send Rate:   1- 1hz, 2- 2hz, 3- 5hz, 4- 10hz, 5- 25hz, 6- 50hz, 7- 100Hz
+0x00    // Data decimation method (bits 0-2): 0- raw, 1- averaging, 2- sliding median
+0x20    //        Ignored by LM: Acquisition time delay, unit: 10us 
+0x00    //        Ignored by LM: Number of sensor read registers
+0x01    //        Ignored by LM: Measurement State: 0 - auto (sensor configured) 1 - forced (sw controlling)  was 0x00
+0x1B    //        Ignored by LM: Address of the Register to controls the sensor power states 
+0x00    //        Ignored by LM: Setting for Stand-by (OFF) mode
+0x80    //        Ignored by LM: Setting for Operating (ON) mode
+0x00    //        Ignored by LM: Number of Initialization Registers to be read 
+0x00    //        Ignored by LM: Number of sensor control registers
+0x20    //        Ignored by LM: Time delay between two consecutive register writes, unit: ms 
+
+0x1    // Sensor Data Processing Rate
+
+0x0  // sensor #1 Zero Point Value 
+0x1  // sensor #1 Scale Factor (sensitivity)
+
+0x0  // sensor #2 Zero Point Value 
+0x400  // sensor #2 Scale Factor (sensitivity)
+

@@ -1,0 +1,11 @@
+import init.nufront-ns115.rc
+
+on boot
+    # bt gpio
+    write /sys/class/gpio/export 24
+    write /sys/class/gpio/export 21
+
+on property:bluetooth.reset=reset
+    write /sys/class/gpio/gpio21/value 0
+    write /sys/class/gpio/gpio21/value 1
+

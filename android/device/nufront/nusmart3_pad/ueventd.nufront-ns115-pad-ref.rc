@@ -1,0 +1,15 @@
+/sys/class/rfkill/rfkill0/state             0666    bluetooth       bluetooth 
+/dev/ump    0666    system  graphics
+/dev/mali   0666    system  graphics
+
+/dev/graphics/galcore   0666    system  graphics
+/dev/hx170              0777    root    root
+/dev/hx280              0777    root    root
+/dev/memalloc           0777    root    root
+
+
+#add by alex
+/dev/ttyACM0  0666 radio system
+/dev/ttyACM1  0666 radio system
+/dev/ttyACM2  0666 radio system
+#add end

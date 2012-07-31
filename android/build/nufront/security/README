@@ -1,0 +1,10 @@
+The following commands were used to generate the nufront release key pairs:
+
+  development/tools/make_key releasekey  '/C=CN/ST=Beijing/L=Beijing/O=Nufront/OU=Nusmart/CN=www.nufront.com/emailAddress=nusmart_sw@nufront.com' 
+  development/tools/make_key platform '/C=CN/ST=Beijing/L=Beijing/O=Nufront/OU=Nusmart/CN=www.nufront.com/emailAddress=nusmart_sw@nufront.com' 
+  development/tools/make_key shared   '/C=CN/ST=Beijing/L=Beijing/O=Nufront/OU=Nusmart/CN=www.nufront.com/emailAddress=nusmart_sw@nufront.com'
+  development/tools/make_key media    '/C=CN/ST=Beijing/L=Beijing/O=Nufront/OU=Nusmart/CN=www.nufront.com/emailAddress=nusmart_sw@nufront.com'
+
+http://en.wikipedia.org/wiki/X.509
+http://stackoverflow.com/questions/6464129/certificate-subject-x-509
+http://www.macfreek.nl/memory/X509_Certificates

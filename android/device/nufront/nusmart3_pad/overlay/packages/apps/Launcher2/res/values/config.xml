@@ -1,0 +1,13 @@
+<resources>
+    <bool name="config_largeHeap">true</bool>
+    <!-- Fade/zoom in/out duration & scale in the AllApps transition.
+         Note: This should be less than the workspaceShrinkTime as they happen together. -->
+    <integer name="config_appsCustomizeZoomInTime">100</integer>
+    <integer name="config_appsCustomizeZoomOutTime">100</integer>
+    <integer name="config_appsCustomizeZoomScaleFactor">5</integer>
+    <integer name="config_appsCustomizeFadeInTime">100</integer>
+    <integer name="config_appsCustomizeFadeOutTime">100</integer>
+    <integer name="config_appsCustomizeWorkspaceShrinkTime">100</integer>
+    <integer name="config_appsCustomizeWorkspaceAnimationStagger">20</integer>
+    <integer name="config_workspaceAppsCustomizeAnimationStagger">50</integer>
+</resources>

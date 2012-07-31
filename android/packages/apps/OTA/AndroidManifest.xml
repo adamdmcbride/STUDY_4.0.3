@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.ota"
+    android:sharedUserId="android.uid.system"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MASTER_CLEAR" />
+
+    <application android:label="@string/app_name" >
+        <activity
+            android:name=".OTAActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.android.ota.OTANotifyAct"
+            android:label="@string/app_name" >
+        </activity>
+
+        <service
+            android:name="com.android.ota.OTAService"
+            enabled="true" >
+            <intent-filter>
+                <action android:name="com.nufront.otaservice.check_version" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.nufront.otaservice.boot_completed" />
+            </intent-filter>
+            
+        </service>
+        <receiver android:name=".BootCompleteReceiver" android:label="@string/app_name">
+        	<intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

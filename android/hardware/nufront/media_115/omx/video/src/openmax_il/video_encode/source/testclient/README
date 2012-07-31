@@ -1,0 +1,48 @@
+Setup for 7280/8270/8290/H1 OpenMAX IL component testing
+============================================================
+
+
+1. Build the encoder
+>cvs co 7280/8270/8290/H1_encoder
+>cd 7280/8270/8290/H1_encoder/software/linux_reference
+>make system
+
+
+2. Get Bellagio OMX core.
+-Copy libomxil-bellagio-0.9.3.tar.gz and unzip it
+-Copy the dir libomxil-bellagio-0.9.3 to same location with openmax_il folder
+ 
+
+3. Install Bellagio to libomxil-bellagio-0.9.3/build folder.
+>./configure --prefix=<where-your-code-is>/libomxil-bellagio-0.9.3/build CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32
+>make
+>make install
+>make check (NOTE: it is normal that some of this fails)
+
+
+4. Install OMX component
+-In omxil/source/h1_encoder/Makefile put "ENCODER_RELEASE = ../../../$(ENCODER_API_VERSION)_encoder" to point to your 7280/8270/8290/H1_decoder
+make install
+
+
+5. Compile system model for 7280/8270/8290/H1 encoder.
+-Read instructions from 7280/8270/8290/H1_encoder/system/README
+
+
+6. Set environment variables
+>setenv SYSTEM_MODEL_HOME 7280/8270/8290/H1_encoder/system          - set to point 7280/8270/8290/H1 system model
+>setenv TEST_DATA_HOME /tmp/data                       - set to point where reference data is created
+>setenv YUV_SEQUENCE_HOME testdata_customer/H1         - set to point input data
+
+
+7. Compile testclient
+>make clean
+>make install
+
+
+8. Run
+>./test_mpeg4.sh [ 1 | 1 100 | all ] (7280_encoder)
+>./test_h264.sh [ 1 | 1000 1100 | all ]
+>./test_jpeg.sh [ 1 | 2000 2100 | all ]
+>./test_vp8.sh [ 1 | 3000 3005 | all ]
+>./test_webp.sh [ 1 | 4000 4003 | all ]

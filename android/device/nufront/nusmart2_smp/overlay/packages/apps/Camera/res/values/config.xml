@@ -1,0 +1,4 @@
+<resources>
+    <!-- launchMode=singleTask   ==> frameworks/base/core/res/res/values/attrs_manifest.xml -->
+    <integer name="config_launchMode_Camera">2</integer>
+</resources>

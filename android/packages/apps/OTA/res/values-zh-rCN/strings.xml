@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="str_null"></string>
+    <string name="app_name">系统更新</string>
+    <string name="last_check">上次检查更新的时间：</string>
+    <string name="check_now">立即检查</string>
+    <string name="no_need_to_update">当前系统已是最新版本</string>
+    <string name="check_version_failed">更新失败，请检查您的网络连接</string>
+    <string name="find_new_version">发现新版本，是否进行更新？</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="insufficient_space">SD 卡空间不足</string>
+    <string name="cannot_download">升级包下载失败，请重新下载</string>
+    <string name="download_pending">开始下载升级包</string>
+    <string name="download_title">下载升级包</string>
+    <string name="current_version_error">您的系统不是官方发布的版本</string>
+    <string name="complete_download"></string>
+    <string name="notify_user_to_update">系统更新即将开始，请确保设备电量不低于30%，设备在更新过程中将会重启。</string>
+    <string name="user_agree">重启系统，开始升级</string>
+
+</resources>

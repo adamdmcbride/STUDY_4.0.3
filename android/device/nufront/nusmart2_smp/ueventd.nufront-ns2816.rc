@@ -1,0 +1,13 @@
+#nusmart v4l2 camera
+/dev/video0               0666   root       camera
+
+#add by zhangj
+# 3G tty
+/dev/ttyACM0              0666   radio       radio
+/dev/ttyACM1              0666   radio       radio
+/dev/ttyACM2              0640   system      system
+
+/dev/bus/usb/002/049      0666   system      system
+/dev/bus/usb/002/050      0666   system      system
+#end
+

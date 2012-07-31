@@ -1,0 +1,4 @@
+<resources>
+    <!-- launchMode=standard   ==> frameworks/base/core/res/res/values/attrs_manifest.xml -->
+    <integer name="config_launchMode_Camera">0</integer>
+</resources>

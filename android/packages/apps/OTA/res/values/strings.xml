@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="str_null"></string>
+    <string name="app_name">System updates</string>
+    <string name="last_check">Last checked for update at </string>
+    <string name="check_now">Check now</string>
+    <string name="no_need_to_update">Your system is currently up to date.</string>
+    <string name="check_version_failed">Update failed, please check your network connection.</string>
+    <string name="find_new_version">Find a new version, whether it be updated?</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="insufficient_space">SD card is not enough space.</string>
+    <string name="cannot_download">Update package download failed, please re-download.</string>
+    <string name="download_pending">Start the download.</string>
+    <string name="download_title">Download the update package.</string>
+    <string name="current_version_error">Your system is not an official version.</string>
+    <string name="complete_download"></string>
+    <string name="notify_user_to_update">The system update is about to start, make sure that the device power not less than 30%, the device will restart during the update process.</string>
+    <string name="user_agree">Reboot system, start update.</string>
+
+</resources>

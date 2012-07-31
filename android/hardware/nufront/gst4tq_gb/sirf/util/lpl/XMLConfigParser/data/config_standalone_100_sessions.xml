@@ -1,0 +1,33 @@
+<config>
+  <GPSPort>\\.\COM2</GPSPort>
+  <ResetPort>\\.\COM1</ResetPort>
+  <AUXPort>\\.\COM19</AUXPort>
+  <GPRSModemPort>\\.\COM20</GPRSModemPort>
+  <Bearer>GPRS</Bearer>
+  <Apn>wap.voicestream.com</Apn>
+  <Login></Login>
+  <Password></Password>
+  <Modem>GPRS</Modem>
+  <PhoneNumber>4086942953</PhoneNumber>
+  <NumberOfSessions>100</NumberOfSessions> 
+  <ResetType>Hot</ResetType>
+  <FixType>Single</FixType>
+  <NumberOfFixes>1</NumberOfFixes>
+  <TimeBetweenFixes>1</TimeBetweenFixes>
+  <AidingType>NoAiding</AidingType>
+  <QoPinSUPLSTART>Present</QoPinSUPLSTART>
+  <QoShorizontalAccuracy>100</QoShorizontalAccuracy>
+  <QoSverticalAccuracy>100</QoSverticalAccuracy>
+  <QoSmaxResponseTime>120</QoSmaxResponseTime>
+  <LoggingType>SingleSession</LoggingType>
+  <BriefLogFilePath>brieflog.txt</BriefLogFilePath>
+  <AGPSLogFilePath>agpslog.txt</AGPSLogFilePath>
+  <DetailedLogFilePath>Detaillog.txt</DetailedLogFilePath>
+  <SLCLogFilePath></SLCLogFilePath>
+  <SNLogFilePath>SNDebugLogs.gps</SNLogFilePath>
+  <NMEAListener>Disable</NMEAListener>
+  <SSBListener>Disable</SSBListener>
+  <SerialListener>Disable</SerialListener>
+  <DebugListener>Enable</DebugListener>
+ </config>
+

@@ -1,0 +1,179 @@
+import init.nusmart.debug.rc
+
+on early-init
+    export EXTERNAL_STORAGE /mnt/sdcard
+    mkdir /mnt/sdcard 0000 system system
+    mkdir /mnt/sdcardEx 0000 system system
+    # for backwards compatibility
+    symlink /mnt/sdcard /sdcard
+    symlink /mnt/sdcardEx /sdcardEx
+    # for CIT compatibility
+    symlink /mnt/sdcard /mnt/external_sdcard
+
+on init
+# mali400 gpu device
+#   start flat_mem
+#    insmod /modules/ump.ko
+    chown system graphics /dev/ump
+    chmod 0666 /dev/ump
+#    insmod /modules/mali.ko #mali_debug_level=2
+    chown system graphics /dev/mali
+    chmod 0666 /dev/mali
+
+# on2 video device
+#    insmod /modules/hx170dec.ko
+    chown root root /dev/hx170
+    chmod 0777 /dev/hx170
+#    insmod /modules/memalloc.ko
+    chown root root /dev/memalloc
+    chmod 0777 /dev/memalloc
+
+# sound device
+    chown root audio /dev/snd/controlC0
+    chown root audio /dev/snd/pcmC0D0c
+    chown root audio /dev/snd/pcmC0D0p
+    chown root audio /dev/snd/timer
+
+    chmod 777  /dev/snd/controlC0
+    chmod 777  /dev/snd/pcmC0D0c
+    chmod 777  /dev/snd/pcmC0D0p
+    chmod 777  /dev/snd/timer
+
+    #dma pl330
+    chmod 0777 /dev/pl330
+
+    
+    mkdir /misc 0770 system misc
+
+    # set default language to Chinese
+    setprop ro.product.locale.language zh
+    setprop ro.product.locale.region CN
+
+    # add default timezone Asia/Shanghai by chen.
+    setprop persist.sys.timezone Asia/Shanghai
+
+    # check off the strictmode
+    setprop persist.sys.strictmode.disable true
+    setprop persist.sys.strictmode.visual false
+
+on fs
+    mount ext3 /dev/block/mmcblk0p3 /system
+    mount ext3 /dev/block/mmcblk0p3 /system ro remount
+    mount ext3 /dev/block/mmcblk0p5 /data nosuid nodev noatime
+    mount ext3 /dev/block/mmcblk0p6 /cache nosuid nodev noatime
+    mount ext3 /dev/block/mmcblk0p7 /misc nosuid nodev noatime
+
+## load wifi driver on boot,add by chen.
+    insmod /modules/mlan.ko
+    insmod /modules/sd8xxx.ko
+
+## load bt driver, added by zj
+    insmod /modules/bt8xxx.ko multi_fn=0x04
+
+on boot
+    setprop net.dns1 202.106.0.20
+    
+    # do not use opengl for ImageWallpaper 
+    # setprop ro.nusmart.useopengl 0
+
+    # use nusmart power manager for S3
+    setprop ro.nusmart.pm 1
+    setprop ro.nusmart.pm.wifi 1
+    setprop ro.nusmart.pm.bt 1
+
+    # backlight
+    chown system system /sys/class/backlight/ns-backlight/brightness
+
+    # gsensor
+    chown system system /dev/kxud9
+    chown system system /dev/input/event0
+    chmod 0660 /dev/kxud9
+    chmod 0660 /dev/input/event0
+
+    #for camera power on
+    chown root root /dev/io373x_pw
+    chmod 777 /dev/io373x_pw
+
+    chmod 777 /dev/ttyS1
+    chmod 777 /dev/io373x
+
+#add by chen for wifi
+    setprop wifi.interface "mlan0"
+    setprop wlan.driver.status "unload"
+    setprop bluetooth.driver.status "unload"
+#end
+
+    setprop connect.3g "open"
+
+on post-fs
+    # We chown/chmod /misc again so because mount is run as root + defaults
+    chown system misc /misc
+    chmod 0770 /misc
+
+    # create the lost+found directories, so as to enforce our permissions
+    mkdir /misc/lost+found 0770 root root
+
+on post-fs-data
+    setprop vold.post_fs_data_done 1
+
+# add by chen NuSmart.
+    mkdir /system/etc/wifi 0770 wifi wifi
+    chmod 0770 /system/etc/wifi
+    chmod 0660 /system/etc/wifi/wpa_supplicant.conf
+    chown wifi wifi /system/etc/wifi/wpa_supplicant.conf
+
+    #wpa_supplicant control socket for android wifi.c (android private socket)
+    mkdir /data/system 0777
+    chmod 0777 /data/system
+
+#when you use android socket, you must comment it
+#    mkdir /data/system/wpa_supplicant 0771 wifi wifi
+#    chmod 0771 /data/system/wpa_supplicant
+#    chown wifi wifi /data/system/wpa_supplicant
+
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    chmod 0770 /data/misc/wifi
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
+    chown wifi wifi /data/misc/wifi
+    chown wifi wifi /data/misc/wifi/wpa_supplicant.conf
+
+    mkdir /data/misc/dhcp 0777 dhcp dhcp
+    chmod 0777 /data/misc/dhcp
+    chmod 0777 /system/etc/dhcpcd
+    chmod 0777 /system/etc/dhcpcd/dhcpcd-run-hooks
+    chown dhcp dhcp /data/misc/dhcp
+    chown dhcp dhcp /system/etc/dhcpcd
+    chown dhcp dhcp /system/etc/dhcpcd/dhcpcd-hooks
+    chown dhcp dhcp /system/etc/dhcpcd/dhcpcd-run-hooks
+#end modifinition by chen NuSmart.
+
+service ril-daemon /system/bin/rild -l /system/lib/libmbm-ril.so -- -d /dev/ttyACM1 -i wwan0
+    class main
+    socket rild stream 660 root radio
+    socket rild-debug stream 660 radio system
+    user root
+    group radio cache inet misc audio sdcard_rw log
+
+#service wpa_supplicant /system/bin/wpa_supplicant -dd -Dwext -imlan0 -c/system/etc/wifi/wpa_supplicant.conf
+service wpa_supplicant /system/bin/wpa_supplicant -Dwext -imlan0 -c/system/etc/wifi/wpa_supplicant.conf
+    class main
+    group system wifi inet
+    socket wpa_mlan0 dgram 660 wifi wifi
+    disabled
+    oneshot
+
+service dhcpcd_mlan0 /system/bin/dhcpcd -ABKL
+    class main
+    group system dhcp
+    disabled
+    oneshot
+
+service iprenew_mlan0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+on property:init.svc.wpa_supplicant=stopped
+    stop dhcpcd
+

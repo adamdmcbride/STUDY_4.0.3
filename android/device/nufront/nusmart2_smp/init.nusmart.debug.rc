@@ -1,0 +1,29 @@
+
+on init
+    # used for CIT.apk
+    #setprop ro.build.version.codename AOSP
+
+on boot
+    # disable scrennlock 
+    #setprop ro.nusmart.screenlock 0
+
+    # do not reset sys clock when the current time less than 1970-01-02
+    #setprop ro.nusmart.resetclock 0
+
+    chown root root /system/xbin/su
+    chmod 06755 /system/xbin/su
+    
+service logcat /system/bin/logcat -v time -f /logcat.log StrictMode:S
+    class main
+    disabled
+    oneshot
+
+on property:init.svc.logcat=running
+    # remove old logs
+    copy /dev/null /logcat.log
+    chmod 0666 /logcat.log
+
+# start console under USER mode
+on property:ro.debuggable=0
+    start console
+    start adbd

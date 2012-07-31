@@ -1,0 +1,350 @@
+import init.nusmart.debug.rc
+import init.nufront-ns115.usb.rc
+
+on early-init
+    export EXTERNAL_STORAGE /mnt/sdcard
+    mkdir /mnt/sdcard 0000 system system
+    mkdir /mnt/sdcardEx 0000 system system
+    mkdir /mnt/usbdisk 0000 system system
+    # for backwards compatibility
+    symlink /mnt/sdcard /sdcard
+    symlink /mnt/sdcardEx /sdcardEx
+    symlink /mnt/usbdisk /usbdisk
+    # for CIT compatibility
+    symlink /mnt/sdcard /mnt/external_sdcard
+
+on init
+
+# apu device
+    chown root root /dev/apudrv
+    chmod 0777 /dev/apudrv
+
+
+# camera device
+    chown camera camera /dev/video0
+    chmod 0666 /dev/video0
+    chown camera camera /dev/video1
+    chmod 0666 /dev/video1
+
+# cpu rate
+    chmod 0664 /sys/devices/system/clocksource/clocksource0/current_clocksource
+    chown system system /sys/devices/system/clocksource/clocksource0/current_clocksource
+    chmod 0664 /sys/class/rtc/rtc0/hctosys
+    chown system system /sys/class/rtc/rtc0/hctosys
+
+# sound device
+    chown root audio /dev/snd/controlC0
+    chown root audio /dev/snd/pcmC0D0c
+    chown root audio /dev/snd/pcmC0D0p
+    chown root audio /dev/snd/timer
+
+    chmod 777  /dev/snd/controlC0
+    chmod 777  /dev/snd/pcmC0D0c
+    chmod 777  /dev/snd/pcmC0D0p
+    chmod 777  /dev/snd/timer
+
+    #bt rfkill
+    #chmod 777  /sys/class/rfkill/rfkill0/state
+
+    #dma pl330
+    chmod 0777 /dev/pl330
+
+    
+    mkdir /misc 0770 system misc
+
+    # set default language to Chinese
+    setprop ro.product.locale.language zh
+    setprop ro.product.locale.region CN
+
+    # add default timezone Asia/Shanghai by chen.
+    setprop persist.sys.timezone Asia/Shanghai
+
+#for UsbMassStorage connect
+    setprop sys.connect.UsbMassStorage unshare
+
+# OTA Service url
+    setprop ro.nufront.OTAService http://192.168.2.5/versioninfo.xml
+
+#for BT mac based wifi mac
+    setprop ro.wifi.mac.dir "/data/data/com.android.settings/files/wifi_mac"
+
+on fs
+    mount rootfs rootfs / ro remount
+    mount ext4 /dev/block/mmcblk1p3 /system
+    mount ext4 /dev/block/mmcblk1p3 /system ro remount
+    mount ext4 /dev/block/mmcblk1p5 /data nosuid nodev noatime
+    mount ext4 /dev/block/mmcblk1p6 /cache nosuid nodev noatime
+    mount ext4 /dev/block/mmcblk1p7 /misc nosuid nodev noatime
+
+on early-boot
+#   mali400 gpu device
+#   start flat_mem
+    insmod /system/lib/modules/ump.ko
+    chown system graphics /dev/ump
+    chmod 0666 /dev/ump
+    insmod /system/lib/modules/mali.ko #mali_debug_level=2
+    chown system graphics /dev/mali
+    chmod 0666 /dev/mali
+
+    insmod /system/lib/modules/galcore.ko #showArgs=1
+    chown system graphics /dev/graphics/galcore
+    chmod 0666 /dev/graphics/galcore
+
+# on2 video device
+    insmod /system/lib/modules/hx170dec.ko
+    chown root root /dev/hx170
+    chmod 0777 /dev/hx170
+    insmod /system/lib/modules/hx280enc.ko
+    chown root root /dev/hx280
+    chmod 0777 /dev/hx280
+   insmod /system/lib/modules/memalloc.ko
+    chown root root /dev/memalloc
+    chmod 0777 /dev/memalloc
+
+on boot
+    setprop net.dns1 202.106.0.20
+
+    # use nusmart power manager for S3
+    setprop ro.nusmart.pm 1
+    setprop ro.nusmart.pm.wifi 1
+    setprop ro.nusmart.pm.bt 1
+    
+    # do not use opengl for ImageWallpaper 
+    # setprop ro.nusmart.useopengl 0
+
+    # backlight
+    chown system system /sys/class/backlight/ns-backlight/brightness
+
+    # gsensor
+    chown system system /dev/kxud9
+    chown system system /dev/input/event0
+    chmod 0660 /dev/kxud9
+    chmod 0660 /dev/input/event0
+
+#gps add by libenqi
+    chmod 0777 /dev/ttyS1
+
+    write /sys/class/gpio/export 60
+    #on property:gps.reset.set=on
+    #write /sys/class/gpio/gpio60/value 1
+
+    #on property:gps.reset.set=off
+    #write /sys/class/gpio/gpio60/value 0
+    #chmod 0006 /sys/class/gpio/gpio60/value
+    #chmod 0006 /sys/class/gpio/gpio60/direction
+    chown system system /sys/class/gpio/gpio60/value
+    chmod 0774 /sys/class/gpio/gpio60/value
+    chown system system /sys/class/gpio/gpio60/direction
+    chmod 0774 /sys/class/gpio/gpio60/direction
+    write /sys/class/gpio/gpio60/direction out
+
+    write /sys/class/gpio/export 59
+
+    #chmod 0006 /sys/class/gpio/gpio59/value
+    #on property:gps.on.set=on
+    #write /sys/class/gpio/gpio59/value 1
+
+    #on property:gps.on.set=off
+    #write /sys/class/gpio/gpio59/value 0
+    chown system system /sys/class/gpio/gpio59/value
+    chmod 0774 /sys/class/gpio/gpio59/value
+    chown system system /sys/class/gpio/gpio59/direction
+    chmod 0774 /sys/class/gpio/gpio59/direction
+    #chmod 0006 /sys/class/gpio/gpio59/direction
+    write /sys/class/gpio/gpio59/direction out
+#gps end
+
+#camera flash
+    write /sys/class/gpio/export 58
+    write /sys/class/gpio/gpio58/direction out
+    setprop camera.flash.on 0
+
+    # bt gpio
+#   write /sys/class/gpio/export 24
+#   write /sys/class/gpio/export 21
+
+#add by chen for wifi
+    setprop wifi.interface "mlan0"
+    setprop wlan.driver.status "ok"
+    setprop bluetooth.driver.status "unload"
+    setprop connect.3g "open"
+#end
+   
+    # core dump
+    setrlimit 4 -1 -1
+    mkdir /data/local/tmp/coredump 0777 system system
+    chmod 0777 /data/local/tmp/coredump
+    chown system system /data/local/tmp/coredump
+#    write /proc/sys/kernel/core_pattern "/data/local/tmp/coredump/core-%e-%p-%t"
+
+on post-fs
+    # We chown/chmod /misc again so because mount is run as root + defaults
+    chown system misc /misc
+    chmod 0770 /misc
+
+    # create the lost+found directories, so as to enforce our permissions
+    mkdir /misc/lost+found 0770 root root
+
+
+on post-fs-data
+    setprop vold.post_fs_data_done 1
+
+# add by chen NuSmart.
+    mkdir /system/etc/wifi 0770 wifi wifi
+    chmod 0770 /system/etc/wifi
+    chmod 0660 /system/etc/wifi/wpa_supplicant.conf
+    chown wifi wifi /system/etc/wifi/wpa_supplicant.conf
+
+    #wpa_supplicant control socket for android wifi.c (android private socket)
+    mkdir /data/system 0777 system system
+    chmod 0777 /data/system
+
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    chmod 0770 /data/misc/wifi
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
+    chown wifi wifi /data/misc/wifi
+    chown wifi wifi /data/misc/wifi/wpa_supplicant.conf
+
+    mkdir /data/misc/dhcp 0777 dhcp dhcp
+    chmod 0775 /data/misc/dhcp
+    chmod 0777 /system/etc/dhcpcd
+    chmod 0777 /system/etc/dhcpcd/dhcpcd-run-hooks
+    chown dhcp dhcp /data/misc/dhcp
+    chown dhcp dhcp /system/etc/dhcpcd
+    chown dhcp dhcp /system/etc/dhcpcd/dhcpcd-hooks
+    chown dhcp dhcp /system/etc/dhcpcd/dhcpcd-run-hooks
+#mkdir for media save index
+    mkdir /data/mediaserver 0777
+    chown media audio /data/mediaserver
+
+    chmod 0755 /system/bin/wl_4330
+#end modifinition by chen NuSmart.
+
+    # core-dump 
+    chmod 0777 /data/local/tmp
+
+#3G module power control
+#add by wangzhi
+    write /sys/class/gpio/export 140
+    chmod 0644 /sys/class/gpio/gpio140/value
+    chmod 0644 /sys/class/gpio/gpio140/direction
+    write /sys/class/gpio/gpio140/direction out
+    write /sys/class/gpio/gpio140/value 1
+
+#add by alex
+on property:modem.telephony.airplanemode=off
+    write /sys/class/gpio/gpio140/value 1
+
+on property:modem.telephony.airplanemode=on
+    write /sys/class/gpio/gpio140/value 0
+#end
+
+service ril-daemon /system/bin/rild -l /system/lib/libtelink-ril.so -- -d /dev/ttyACM1
+    class main
+    socket rild stream 660 root radio
+    socket rild-debug stream 660 radio system
+    user root
+    group radio cache inet misc audio sdcard_rw log
+
+#add by alex
+service modem-log /data/log.sh
+    class main
+    user root
+    group sdcard_rw radio cache misc shell log
+    oneshot
+
+# ecompass daemon
+#service amidaemon /system/bin/amid
+#    class main
+
+#service wpa_supplicant /system/bin/wpa_supplicant -dd -Dnl80211 -imlan0 -c/system/etc/wifi/wpa_supplicant.conf
+service wpa_supplicant /system/bin/wpa_supplicant -dd -Dnl80211 -imlan0 -puse_p2p_group_interface=1 -c/system/etc/wifi/wpa_supplicant.conf
+    class main
+    group system wifi inet
+    socket wpa_mlan0 dgram 660 wifi wifi
+    disabled
+    oneshot
+
+service dhcpcd_mlan0 /system/bin/dhcpcd -ABKL
+    class main
+    group system dhcp
+    disabled
+    oneshot
+
+service iprenew_mlan0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_p2p /system/bin/dhcpcd -aABKL
+    class main
+    group system dhcp
+    disabled
+    oneshot
+
+service iprenew_p2p /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+#service hciattach /system/bin/hciattach -n /dev/ttyS2 bcm4329 2000000 flow
+service hciattach /system/bin/hciattach -n /dev/ttyS2 bcm4329 460800 flow
+#service hciattach /system/bin/hciattach -s 115200 /dev/ttyS2 any 115200 noflow
+    class main
+    disabled
+    oneshot
+
+#on property:bluetooth.reset=reset
+#    write /sys/class/gpio/gpio21/value 0
+#    write /sys/class/gpio/gpio21/value 1
+
+on property:bluetooth.power.set=on
+    write /sys/class/rfkill/rfkill0/state 1
+
+on property:bluetooth.power.set=off
+    write /sys/class/rfkill/rfkill0/state 0
+
+service battery_charger /charger
+    class charger
+
+service preapk /system/xbin/busybox sh /system/bin/preapkinstall.sh
+	user root
+	group root
+	disabled
+	oneshot
+	
+on property:sys.boot_completed=1
+	start preapk
+
+# Livall service, for some root operation
+service LVService /system/bin/LivallService
+    class main
+    user root
+    group root
+
+# camera flash property triger
+on property:camera.flash.on=1
+   write /sys/class/gpio/gpio58/value 1
+on property:camera.flash.on=0
+   write /sys/class/gpio/gpio58/value 0
+
+# change dvfs governor value
+on property:dvfs.cpufreq.governor=performance
+   write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
+
+on property:dvfs.cpufreq.governor=ondemand
+   write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ondemand
+
+on property:dvfs.cpufreq.governor=userspace
+   write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor userspace
+
+on property:dvfs.cpufreq.governor=powersave
+   write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor powersave
+
+on property:dvfs.cpufreq.governor=interactive
+   write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
+
+on property:dvfs.cpufreq.governor=conservative
+   write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor conservative
+

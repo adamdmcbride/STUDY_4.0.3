@@ -770,11 +770,9 @@ status_t Thread::run(const char* name, int32_t priority, size_t stack)
 
     bool res;
     if (mCanCallJava) {
-        res = createThreadEtc(_threadLoop,
-                this, name, priority, stack, &mThread);
+        res = createThreadEtc(_threadLoop, this, name, priority, stack, &mThread);
     } else {
-        res = androidCreateRawThreadEtc(_threadLoop,
-                this, name, priority, stack, &mThread);
+        res = androidCreateRawThreadEtc(_threadLoop, this, name, priority, stack, &mThread);
     }
     
     if (res == false) {

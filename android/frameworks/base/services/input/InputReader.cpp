@@ -245,7 +245,8 @@ InputReader::InputReader(const sp<EventHubInterface>& eventHub,
         const sp<InputListenerInterface>& listener) :
         mContext(this), mEventHub(eventHub), mPolicy(policy),
         mGlobalMetaState(0), mDisableVirtualKeysTimeout(LLONG_MIN), mNextTimeout(LLONG_MAX),
-        mConfigurationChangesToRefresh(0) {
+        mConfigurationChangesToRefresh(0) 
+{
     mQueuedListener = new QueuedInputListener(listener);
 
     { // acquire lock
@@ -281,12 +282,14 @@ void InputReader::loopOnce() {
         }
     } // release lock
 
+	// TODO: zhoukl: 获取输入事件
     size_t count = mEventHub->getEvents(timeoutMillis, mEventBuffer, EVENT_BUFFER_SIZE);
 
     { // acquire lock
         AutoMutex _l(mLock);
 
         if (count) {
+			// TODO: zhoukl:  处理输入事件
             processEventsLocked(mEventBuffer, count);
         }
         if (!count || timeoutMillis == 0) {
@@ -306,6 +309,7 @@ void InputReader::loopOnce() {
     // resulting in a deadlock.  This situation is actually quite plausible because the
     // listener is actually the input dispatcher, which calls into the window manager,
     // which occasionally calls into the input reader.
+    // TODO: zhoukl:  把队列中事件发送到Listener中
     mQueuedListener->flush();
 }
 
@@ -313,11 +317,11 @@ void InputReader::processEventsLocked(const RawEvent* rawEvents, size_t count) {
     for (const RawEvent* rawEvent = rawEvents; count;) {
         int32_t type = rawEvent->type;
         size_t batchSize = 1;
+		// TODO: zhoukl: 处理来自于事件驱动设备的事件
         if (type < EventHubInterface::FIRST_SYNTHETIC_EVENT) {
             int32_t deviceId = rawEvent->deviceId;
             while (batchSize < count) {
-                if (rawEvent[batchSize].type >= EventHubInterface::FIRST_SYNTHETIC_EVENT
-                        || rawEvent[batchSize].deviceId != deviceId) {
+                if (rawEvent[batchSize].type >= EventHubInterface::FIRST_SYNTHETIC_EVENT || rawEvent[batchSize].deviceId != deviceId) {
                     break;
                 }
                 batchSize += 1;
@@ -325,8 +329,10 @@ void InputReader::processEventsLocked(const RawEvent* rawEvents, size_t count) {
 #if DEBUG_RAW_EVENTS
             LOGD("BatchSize: %d Count: %d", batchSize, count);
 #endif
+			// TODO: zhoukl: 处理来自一个事件驱动设备的1个或多个事件
             processEventsForDeviceLocked(deviceId, rawEvent, batchSize);
         } else {
+        	// TODO: zhoukl: 处理增加或删除事件驱动设备的事件，在EventHub::getEvents中产生，而不是由事件驱动设备产生.
             switch (rawEvent->type) {
             case EventHubInterface::DEVICE_ADDED:
                 addDeviceLocked(rawEvent->when, rawEvent->deviceId);

@@ -583,8 +583,7 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
 
         while (mOpeningDevices != NULL) {
             Device* device = mOpeningDevices;
-            LOGV("Reporting device opened: id=%d, name=%s\n",
-                 device->id, device->path.string());
+            LOGV("Reporting device opened: id=%d, name=%s\n", device->id, device->path.string());
             mOpeningDevices = device->next;
             event->when = now;
             event->deviceId = device->id == mBuiltInKeyboardId ? 0 : device->id;
@@ -606,7 +605,7 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
             }
         }
 
-        // Grab the next input event.
+        // Grab the next input event.  获取下一个输入事件
         bool deviceChanged = false;
         while (mPendingEventIndex < mPendingEventCount) {
             const struct epoll_event& eventItem = mPendingEventItems[mPendingEventIndex++];
@@ -629,23 +628,21 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
                         nRead = read(mWakeReadPipeFd, buffer, sizeof(buffer));
                     } while ((nRead == -1 && errno == EINTR) || nRead == sizeof(buffer));
                 } else {
-                    LOGW("Received unexpected epoll event 0x%08x for wake read pipe.",
-                            eventItem.events);
+                    LOGW("Received unexpected epoll event 0x%08x for wake read pipe.", eventItem.events);
                 }
                 continue;
             }
 
             ssize_t deviceIndex = mDevices.indexOfKey(eventItem.data.u32);
             if (deviceIndex < 0) {
-                LOGW("Received unexpected epoll event 0x%08x for unknown device id %d.",
-                        eventItem.events, eventItem.data.u32);
+                LOGW("Received unexpected epoll event 0x%08x for unknown device id %d.", eventItem.events, eventItem.data.u32);
                 continue;
             }
 
             Device* device = mDevices.valueAt(deviceIndex);
             if (eventItem.events & EPOLLIN) {
-                int32_t readSize = read(device->fd, readBuffer,
-                        sizeof(struct input_event) * capacity);
+				// TODO: zhoukl : 从设备中获取输入事件
+                int32_t readSize = read(device->fd, readBuffer, sizeof(struct input_event) * capacity);
                 if (readSize == 0 || (readSize < 0 && errno == ENODEV)) {
                     // Device was removed before INotify noticed.
                     LOGW("could not get event, removed? (fd: %d size: %d bufferSize: %d capacity: %d errno: %d)\n",
@@ -665,9 +662,7 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
                     for (size_t i = 0; i < count; i++) {
                         const struct input_event& iev = readBuffer[i];
                         LOGV("%s got: t0=%d, t1=%d, type=%d, code=%d, value=%d",
-                                device->path.string(),
-                                (int) iev.time.tv_sec, (int) iev.time.tv_usec,
-                                iev.type, iev.code, iev.value);
+                                device->path.string(), (int) iev.time.tv_sec, (int) iev.time.tv_usec, iev.type, iev.code, iev.value);
 
 #ifdef HAVE_POSIX_CLOCKS
                         // Use the time specified in the event instead of the current time
@@ -681,8 +676,7 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
                         // The systemTime(SYSTEM_TIME_MONOTONIC) function we use everywhere
                         // calls clock_gettime(CLOCK_MONOTONIC) which is implemented as a
                         // system call that also queries ktime_get_ts().
-                        event->when = nsecs_t(iev.time.tv_sec) * 1000000000LL
-                                + nsecs_t(iev.time.tv_usec) * 1000LL;
+                        event->when = nsecs_t(iev.time.tv_sec) * 1000000000LL + nsecs_t(iev.time.tv_usec) * 1000LL;
                         LOGV("event time %lld, now %lld", event->when, now);
 #else
                         event->when = now;
@@ -694,10 +688,8 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
                         event->keyCode = AKEYCODE_UNKNOWN;
                         event->flags = 0;
                         if (iev.type == EV_KEY && device->keyMap.haveKeyLayout()) {
-                            status_t err = device->keyMap.keyLayoutMap->mapKey(iev.code,
-                                        &event->keyCode, &event->flags);
-                            LOGV("iev.code=%d keyCode=%d flags=0x%08x err=%d\n",
-                                    iev.code, event->keyCode, event->flags, err);
+                            status_t err = device->keyMap.keyLayoutMap->mapKey(iev.code, &event->keyCode, &event->flags);
+                            LOGV("iev.code=%d keyCode=%d flags=0x%08x err=%d\n", iev.code, event->keyCode, event->flags, err);
                         }
                         event += 1;
                     }
@@ -710,8 +702,7 @@ size_t EventHub::getEvents(int timeoutMillis, RawEvent* buffer, size_t bufferSiz
                     }
                 }
             } else {
-                LOGW("Received unexpected epoll event 0x%08x for device %s.",
-                        eventItem.events, device->identifier.name.string());
+                LOGW("Received unexpected epoll event 0x%08x for device %s.", eventItem.events, device->identifier.name.string());
             }
         }
 
@@ -946,27 +937,21 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
     // See if this is a keyboard.  Ignore everything in the button range except for
     // joystick and gamepad buttons which are handled like keyboards for the most part.
     bool haveKeyboardKeys = containsNonZeroByte(device->keyBitmask, 0, sizeof_bit_array(BTN_MISC))
-            || containsNonZeroByte(device->keyBitmask, sizeof_bit_array(KEY_OK),
-                    sizeof_bit_array(KEY_MAX + 1));
-    bool haveGamepadButtons = containsNonZeroByte(device->keyBitmask, sizeof_bit_array(BTN_MISC),
-                    sizeof_bit_array(BTN_MOUSE))
-            || containsNonZeroByte(device->keyBitmask, sizeof_bit_array(BTN_JOYSTICK),
-                    sizeof_bit_array(BTN_DIGI));
+            || containsNonZeroByte(device->keyBitmask, sizeof_bit_array(KEY_OK), sizeof_bit_array(KEY_MAX + 1));
+    bool haveGamepadButtons = containsNonZeroByte(device->keyBitmask, sizeof_bit_array(BTN_MISC), 
+			sizeof_bit_array(BTN_MOUSE)) || containsNonZeroByte(device->keyBitmask, sizeof_bit_array(BTN_JOYSTICK), sizeof_bit_array(BTN_DIGI));
     if (haveKeyboardKeys || haveGamepadButtons) {
         device->classes |= INPUT_DEVICE_CLASS_KEYBOARD;
     }
 
     // See if this is a cursor device such as a trackball or mouse.
-    if (test_bit(BTN_MOUSE, device->keyBitmask)
-            && test_bit(REL_X, device->relBitmask)
-            && test_bit(REL_Y, device->relBitmask)) {
+    if (test_bit(BTN_MOUSE, device->keyBitmask) && test_bit(REL_X, device->relBitmask) && test_bit(REL_Y, device->relBitmask)) {
         device->classes |= INPUT_DEVICE_CLASS_CURSOR;
     }
 
     // See if this is a touch pad.
     // Is this a new modern multi-touch driver?
-    if (test_bit(ABS_MT_POSITION_X, device->absBitmask)
-            && test_bit(ABS_MT_POSITION_Y, device->absBitmask)) {
+    if (test_bit(ABS_MT_POSITION_X, device->absBitmask) && test_bit(ABS_MT_POSITION_Y, device->absBitmask)) {
         // Some joysticks such as the PS3 controller report axes that conflict
         // with the ABS_MT range.  Try to confirm that the device really is
         // a touch screen.
@@ -974,9 +959,7 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
             device->classes |= INPUT_DEVICE_CLASS_TOUCH | INPUT_DEVICE_CLASS_TOUCH_MT;
         }
     // Is this an old style single-touch driver?
-    } else if (test_bit(BTN_TOUCH, device->keyBitmask)
-            && test_bit(ABS_X, device->absBitmask)
-            && test_bit(ABS_Y, device->absBitmask)) {
+    } else if (test_bit(BTN_TOUCH, device->keyBitmask) && test_bit(ABS_X, device->absBitmask) && test_bit(ABS_Y, device->absBitmask)) {
         device->classes |= INPUT_DEVICE_CLASS_TOUCH;
     }
 
@@ -986,8 +969,7 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
     if (haveGamepadButtons) {
         uint32_t assumedClasses = device->classes | INPUT_DEVICE_CLASS_JOYSTICK;
         for (int i = 0; i <= ABS_MAX; i++) {
-            if (test_bit(i, device->absBitmask)
-                    && (getAbsAxisUsage(i, assumedClasses) & INPUT_DEVICE_CLASS_JOYSTICK)) {
+            if (test_bit(i, device->absBitmask) && (getAbsAxisUsage(i, assumedClasses) & INPUT_DEVICE_CLASS_JOYSTICK)) {
                 device->classes = assumedClasses;
                 break;
             }
@@ -1023,10 +1005,8 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
     // Configure the keyboard, gamepad or virtual keyboard.
     if (device->classes & INPUT_DEVICE_CLASS_KEYBOARD) {
         // Register the keyboard as a built-in keyboard if it is eligible.
-        if (!keyMapStatus
-                && mBuiltInKeyboardId == -1
-                && isEligibleBuiltInKeyboard(device->identifier,
-                        device->configuration, &device->keyMap)) {
+        if (!keyMapStatus && mBuiltInKeyboardId == -1 
+				&& isEligibleBuiltInKeyboard(device->identifier, device->configuration, &device->keyMap)) {
             mBuiltInKeyboardId = device->id;
         }
 
@@ -1036,10 +1016,8 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
         }
 
         // See if this device has a DPAD.
-        if (hasKeycodeLocked(device, AKEYCODE_DPAD_UP) &&
-                hasKeycodeLocked(device, AKEYCODE_DPAD_DOWN) &&
-                hasKeycodeLocked(device, AKEYCODE_DPAD_LEFT) &&
-                hasKeycodeLocked(device, AKEYCODE_DPAD_RIGHT) &&
+        if (hasKeycodeLocked(device, AKEYCODE_DPAD_UP) && hasKeycodeLocked(device, AKEYCODE_DPAD_DOWN) &&
+                hasKeycodeLocked(device, AKEYCODE_DPAD_LEFT) && hasKeycodeLocked(device, AKEYCODE_DPAD_RIGHT) &&
                 hasKeycodeLocked(device, AKEYCODE_DPAD_CENTER)) {
             device->classes |= INPUT_DEVICE_CLASS_DPAD;
         }
@@ -1055,8 +1033,7 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
 
     // If the device isn't recognized as something we handle, don't monitor it.
     if (device->classes == 0) {
-        LOGV("Dropping device: id=%d, path='%s', name='%s'",
-                deviceId, devicePath, device->identifier.name.string());
+        LOGV("Dropping device: id=%d, path='%s', name='%s'", deviceId, devicePath, device->identifier.name.string());
         delete device;
         return -1;
     }
@@ -1071,23 +1048,19 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
     memset(&eventItem, 0, sizeof(eventItem));
     eventItem.events = EPOLLIN;
     eventItem.data.u32 = deviceId;
+    // TODO:  zhoukl:  每个设备被创建后，都会向epoll注册
     if (epoll_ctl(mEpollFd, EPOLL_CTL_ADD, fd, &eventItem)) {
         LOGE("Could not add device fd to epoll instance.  errno=%d", errno);
         delete device;
         return -1;
     }
 
-    LOGI("New device: id=%d, fd=%d, path='%s', name='%s', classes=0x%x, "
-            "configuration='%s', keyLayout='%s', keyCharacterMap='%s', builtinKeyboard=%s",
-         deviceId, fd, devicePath, device->identifier.name.string(),
-         device->classes,
-         device->configurationFile.string(),
-         device->keyMap.keyLayoutFile.string(),
-         device->keyMap.keyCharacterMapFile.string(),
-         toString(mBuiltInKeyboardId == deviceId));
+    LOGI("New device: id=%d, fd=%d, path='%s', name='%s', classes=0x%x, configuration='%s', keyLayout='%s', keyCharacterMap='%s', builtinKeyboard=%s",
+         deviceId, fd, devicePath, device->identifier.name.string(), device->classes, device->configurationFile.string(), 
+         device->keyMap.keyLayoutFile.string(), device->keyMap.keyCharacterMapFile.string(), toString(mBuiltInKeyboardId == deviceId));
 
+	// TODO: zhoukl: 添加到mDevices中
     mDevices.add(deviceId, device);
-
     device->next = mOpeningDevices;
     mOpeningDevices = device;
     return 0;

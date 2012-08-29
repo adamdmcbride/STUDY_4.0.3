@@ -1,0 +1,4 @@
+config LIVALL_BOARDVERSION
+	bool "Create sysfs to detect HW board version"
+	depends on SYSFS_LIVALL
+	default y

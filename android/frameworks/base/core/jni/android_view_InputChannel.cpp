@@ -107,24 +107,25 @@ void android_view_InputChannel_setDisposeCallback(JNIEnv* env, jobject inputChan
     }
 }
 
-static jobject android_view_InputChannel_createInputChannel(JNIEnv* env,
-        NativeInputChannel* nativeInputChannel) {
-    jobject inputChannelObj = env->NewObject(gInputChannelClassInfo.clazz,
-            gInputChannelClassInfo.ctor);
+static jobject android_view_InputChannel_createInputChannel(JNIEnv* env, NativeInputChannel* nativeInputChannel) {
+    jobject inputChannelObj = env->NewObject(gInputChannelClassInfo.clazz, gInputChannelClassInfo.ctor);
     if (inputChannelObj) {
         android_view_InputChannel_setNativeInputChannel(env, inputChannelObj, nativeInputChannel);
     }
     return inputChannelObj;
 }
 
-static jobjectArray android_view_InputChannel_nativeOpenInputChannelPair(JNIEnv* env,
-        jclass clazz, jstring nameObj) {
+static jobjectArray android_view_InputChannel_nativeOpenInputChannelPair(JNIEnv* env, jclass clazz, jstring nameObj) {
     const char* nameChars = env->GetStringUTFChars(nameObj, NULL);
     String8 name(nameChars);
     env->ReleaseStringUTFChars(nameObj, nameChars);
 
     sp<InputChannel> serverChannel;
     sp<InputChannel> clientChannel;
+    // TODO: zhoukl: 根据传进来的参数name在C++层分别创建两个InputChannel，一个作为Server端使用，一个作为Client端使用，
+    // TODO: zhoukl: 这里的Server端即是指InputManager，而Client端即是指应用程序。
+    // TODO: zhoukl: 这两个本地的InputChannel是通过InputChannel::openInputChannelPair函数创建的，创建完成后，
+    // TODO: zhoukl: 再相应地在Java层创建相应的两个InputChannel，然后返回
     status_t result = InputChannel::openInputChannelPair(name, serverChannel, clientChannel);
 
     if (result) {
@@ -139,14 +140,12 @@ static jobjectArray android_view_InputChannel_nativeOpenInputChannelPair(JNIEnv*
         return NULL;
     }
 
-    jobject serverChannelObj = android_view_InputChannel_createInputChannel(env,
-            new NativeInputChannel(serverChannel));
+    jobject serverChannelObj = android_view_InputChannel_createInputChannel(env, new NativeInputChannel(serverChannel));
     if (env->ExceptionCheck()) {
         return NULL;
     }
 
-    jobject clientChannelObj = android_view_InputChannel_createInputChannel(env,
-            new NativeInputChannel(clientChannel));
+    jobject clientChannelObj = android_view_InputChannel_createInputChannel(env, new NativeInputChannel(clientChannel));
     if (env->ExceptionCheck()) {
         return NULL;
     }

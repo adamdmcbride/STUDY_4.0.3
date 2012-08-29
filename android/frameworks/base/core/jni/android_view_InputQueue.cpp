@@ -128,10 +128,8 @@ NativeInputQueue::NativeInputQueue() :
 NativeInputQueue::~NativeInputQueue() {
 }
 
-status_t NativeInputQueue::registerInputChannel(JNIEnv* env, jobject inputChannelObj,
-        jobject inputHandlerObj, jobject messageQueueObj) {
-    sp<InputChannel> inputChannel = android_view_InputChannel_getInputChannel(env,
-            inputChannelObj);
+status_t NativeInputQueue::registerInputChannel(JNIEnv* env, jobject inputChannelObj, jobject inputHandlerObj, jobject messageQueueObj) {
+    sp<InputChannel> inputChannel = android_view_InputChannel_getInputChannel(env, inputChannelObj);
     if (inputChannel == NULL) {
         LOGW("Input channel is not initialized.");
         return BAD_VALUE;
@@ -147,8 +145,7 @@ status_t NativeInputQueue::registerInputChannel(JNIEnv* env, jobject inputChanne
         AutoMutex _l(mLock);
 
         if (getConnectionIndex(inputChannel) >= 0) {
-            LOGW("Attempted to register already registered input channel '%s'",
-                    inputChannel->getName().string());
+            LOGW("Attempted to register already registered input channel '%s'", inputChannel->getName().string());
             return BAD_VALUE;
         }
 
@@ -156,8 +153,7 @@ status_t NativeInputQueue::registerInputChannel(JNIEnv* env, jobject inputChanne
         sp<Connection> connection = new Connection(connectionId, inputChannel, looper);
         status_t result = connection->inputConsumer.initialize();
         if (result) {
-            LOGW("Failed to initialize input consumer for input channel '%s', status=%d",
-                    inputChannel->getName().string(), result);
+            LOGW("Failed to initialize input consumer for input channel '%s', status=%d", inputChannel->getName().string(), result);
             return result;
         }
 
@@ -169,8 +165,7 @@ status_t NativeInputQueue::registerInputChannel(JNIEnv* env, jobject inputChanne
         looper->addFd(receiveFd, 0, ALOOPER_EVENT_INPUT, handleReceiveCallback, this);
     } // release lock
 
-    android_view_InputChannel_setDisposeCallback(env, inputChannelObj,
-            handleInputChannelDisposed, this);
+    android_view_InputChannel_setDisposeCallback(env, inputChannelObj, handleInputChannelDisposed, this);
     return OK;
 }
 

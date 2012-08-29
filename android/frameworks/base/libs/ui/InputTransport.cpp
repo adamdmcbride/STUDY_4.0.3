@@ -506,8 +506,7 @@ status_t InputPublisher::appendMotionSample(
 
 status_t InputPublisher::sendDispatchSignal() {
 #if DEBUG_TRANSPORT_ACTIONS
-    LOGD("channel '%s' publisher ~ sendDispatchSignal",
-            mChannel->getName().string());
+    LOGD("channel '%s' publisher ~ sendDispatchSignal", mChannel->getName().string());
 #endif
 
     mWasDispatched = true;

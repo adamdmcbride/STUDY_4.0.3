@@ -72,8 +72,7 @@ public final class InputQueue {
      * @param messageQueue The message queue on whose thread the handler should be invoked.
      * @hide
      */
-    public static void registerInputChannel(InputChannel inputChannel, InputHandler inputHandler,
-            MessageQueue messageQueue) {
+    public static void registerInputChannel(InputChannel inputChannel, InputHandler inputHandler, MessageQueue messageQueue) {
         if (inputChannel == null) {
             throw new IllegalArgumentException("inputChannel must not be null");
         }

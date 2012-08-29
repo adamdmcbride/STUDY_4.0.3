@@ -47,9 +47,9 @@ namespace android {
  * A raw event as retrieved from the EventHub.
  */
 struct RawEvent {
-    nsecs_t when;
-    int32_t deviceId;
-    int32_t type;
+    nsecs_t when;            // 事件发生的时间
+    int32_t deviceId;       // 产生此事件的设备，比如发送 FINISHED_DEVICE_SCAN, 不需要填此项
+    int32_t type;           // 事件类型(如: DEVICE_ADDED, DEVICE_REMOVED, FINISHED_DEVICE_SCAN, FIRST_SYNTHETIC_EVENT)
     int32_t scanCode;
     int32_t keyCode;
     int32_t value;

@@ -754,14 +754,12 @@ public class WindowManagerService extends IWindowManager.Stub
         mContext = context;
         mHaveInputMethods = haveInputMethods;
         mAllowBootMessages = showBootMsgs;
-        mLimitedAlphaCompositing = context.getResources().getBoolean(
-                com.android.internal.R.bool.config_sf_limitedAlpha);
+        mLimitedAlphaCompositing = context.getResources().getBoolean(com.android.internal.R.bool.config_sf_limitedAlpha);
 
         mPowerManager = pm;
         mPowerManager.setPolicy(mPolicy);
         PowerManager pmc = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-        mScreenFrozenLock = pmc.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                "SCREEN_FROZEN");
+        mScreenFrozenLock = pmc.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SCREEN_FROZEN");
         mScreenFrozenLock.setReferenceCounted(false);
 
         mActivityManager = ActivityManagerNative.getDefault();
@@ -778,8 +776,7 @@ public class WindowManagerService extends IWindowManager.Stub
         filter.addAction(DevicePolicyManager.ACTION_DEVICE_POLICY_MANAGER_STATE_CHANGED);
         mContext.registerReceiver(mBroadcastReceiver, filter);
 
-        mHoldingScreenWakeLock = pmc.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK,
-                "KEEP_SCREEN_ON_FLAG");
+        mHoldingScreenWakeLock = pmc.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "KEEP_SCREEN_ON_FLAG");
         mHoldingScreenWakeLock.setReferenceCounted(false);
 
         mInputManager = new InputManager(context, this);
@@ -1997,8 +1994,7 @@ public class WindowManagerService extends IWindowManager.Stub
     }
     
     public int addWindow(Session session, IWindow client, int seq,
-            WindowManager.LayoutParams attrs, int viewVisibility,
-            Rect outContentInsets, InputChannel outInputChannel) {
+            WindowManager.LayoutParams attrs, int viewVisibility, Rect outContentInsets, InputChannel outInputChannel) {
         int res = mPolicy.checkAddPermission(attrs);
         if (res != WindowManagerImpl.ADD_OKAY) {
             return res;
@@ -2022,14 +2018,11 @@ public class WindowManagerService extends IWindowManager.Stub
             if (attrs.type >= FIRST_SUB_WINDOW && attrs.type <= LAST_SUB_WINDOW) {
                 attachedWindow = windowForClientLocked(null, attrs.token, false);
                 if (attachedWindow == null) {
-                    Slog.w(TAG, "Attempted to add window with token that is not a window: "
-                          + attrs.token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add window with token that is not a window: " + attrs.token + ".  Aborting.");
                     return WindowManagerImpl.ADD_BAD_SUBWINDOW_TOKEN;
                 }
-                if (attachedWindow.mAttrs.type >= FIRST_SUB_WINDOW
-                        && attachedWindow.mAttrs.type <= LAST_SUB_WINDOW) {
-                    Slog.w(TAG, "Attempted to add window with token that is a sub-window: "
-                            + attrs.token + ".  Aborting.");
+                if (attachedWindow.mAttrs.type >= FIRST_SUB_WINDOW && attachedWindow.mAttrs.type <= LAST_SUB_WINDOW) {
+                    Slog.w(TAG, "Attempted to add window with token that is a sub-window: " + attrs.token + ".  Aborting.");
                     return WindowManagerImpl.ADD_BAD_SUBWINDOW_TOKEN;
                 }
             }
@@ -2037,63 +2030,52 @@ public class WindowManagerService extends IWindowManager.Stub
             boolean addToken = false;
             WindowToken token = mTokenMap.get(attrs.token);
             if (token == null) {
-                if (attrs.type >= FIRST_APPLICATION_WINDOW
-                        && attrs.type <= LAST_APPLICATION_WINDOW) {
-                    Slog.w(TAG, "Attempted to add application window with unknown token "
-                          + attrs.token + ".  Aborting.");
+                if (attrs.type >= FIRST_APPLICATION_WINDOW && attrs.type <= LAST_APPLICATION_WINDOW) {
+                    Slog.w(TAG, "Attempted to add application window with unknown token " + attrs.token + ".  Aborting.");
                     return WindowManagerImpl.ADD_BAD_APP_TOKEN;
                 }
                 if (attrs.type == TYPE_INPUT_METHOD) {
-                    Slog.w(TAG, "Attempted to add input method window with unknown token "
-                          + attrs.token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add input method window with unknown token " + attrs.token + ".  Aborting.");
                     return WindowManagerImpl.ADD_BAD_APP_TOKEN;
                 }
                 if (attrs.type == TYPE_WALLPAPER) {
-                    Slog.w(TAG, "Attempted to add wallpaper window with unknown token "
-                          + attrs.token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add wallpaper window with unknown token " + attrs.token + ".  Aborting.");
                     return WindowManagerImpl.ADD_BAD_APP_TOKEN;
                 }
                 token = new WindowToken(this, attrs.token, -1, false);
                 addToken = true;
-            } else if (attrs.type >= FIRST_APPLICATION_WINDOW
-                    && attrs.type <= LAST_APPLICATION_WINDOW) {
+            } else if (attrs.type >= FIRST_APPLICATION_WINDOW && attrs.type <= LAST_APPLICATION_WINDOW) {
                 AppWindowToken atoken = token.appWindowToken;
                 if (atoken == null) {
-                    Slog.w(TAG, "Attempted to add window with non-application token "
-                          + token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add window with non-application token " + token + ".  Aborting.");
                     return WindowManagerImpl.ADD_NOT_APP_TOKEN;
                 } else if (atoken.removed) {
-                    Slog.w(TAG, "Attempted to add window with exiting application token "
-                          + token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add window with exiting application token " + token + ".  Aborting.");
                     return WindowManagerImpl.ADD_APP_EXITING;
                 }
                 if (attrs.type == TYPE_APPLICATION_STARTING && atoken.firstWindowDrawn) {
                     // No need for this guy!
-                    if (localLOGV) Slog.v(
-                            TAG, "**** NO NEED TO START: " + attrs.getTitle());
+                    if (localLOGV) Slog.v(TAG, "**** NO NEED TO START: " + attrs.getTitle());
                     return WindowManagerImpl.ADD_STARTING_NOT_NEEDED;
                 }
             } else if (attrs.type == TYPE_INPUT_METHOD) {
                 if (token.windowType != TYPE_INPUT_METHOD) {
-                    Slog.w(TAG, "Attempted to add input method window with bad token "
-                            + attrs.token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add input method window with bad token " + attrs.token + ".  Aborting.");
                       return WindowManagerImpl.ADD_BAD_APP_TOKEN;
                 }
             } else if (attrs.type == TYPE_WALLPAPER) {
                 if (token.windowType != TYPE_WALLPAPER) {
-                    Slog.w(TAG, "Attempted to add wallpaper window with bad token "
-                            + attrs.token + ".  Aborting.");
+                    Slog.w(TAG, "Attempted to add wallpaper window with bad token " + attrs.token + ".  Aborting.");
                       return WindowManagerImpl.ADD_BAD_APP_TOKEN;
                 }
             }
 
-            win = new WindowState(this, session, client, token,
-                    attachedWindow, seq, attrs, viewVisibility);
+            // TODO: zhoukl:
+            win = new WindowState(this, session, client, token, attachedWindow, seq, attrs, viewVisibility);
             if (win.mDeathRecipient == null) {
                 // Client has apparently died, so there is no reason to
                 // continue.
-                Slog.w(TAG, "Adding window client " + client.asBinder()
-                        + " that is dead, aborting.");
+                Slog.w(TAG, "Adding window client " + client.asBinder() + " that is dead, aborting.");
                 return WindowManagerImpl.ADD_APP_EXITING;
             }
 
@@ -2104,13 +2086,14 @@ public class WindowManagerService extends IWindowManager.Stub
                 return res;
             }
             
-            if (outInputChannel != null && (attrs.inputFeatures
-                    & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
+            if (outInputChannel != null && (attrs.inputFeatures & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
                 String name = win.makeInputChannelName();
+                // TODO: zhoukl: 来创建一对输入通道，其中一个位于WindowManagerService中，另外一个通过outInputChannel参数返回到应用程序中
                 InputChannel[] inputChannels = InputChannel.openInputChannelPair(name);
-                win.setInputChannel(inputChannels[0]);
-                inputChannels[1].transferTo(outInputChannel);
-                
+                win.setInputChannel(inputChannels[0]);                // 第一个位于WindowManagerService
+                inputChannels[1].transferTo(outInputChannel);       // 复制到应用程序的outInputChannel中
+
+                // TODO: zhoukl: 将刚创建的Server端的输入通道注册到InputManager中
                 mInputManager.registerInputChannel(win.mInputChannel, win.mInputWindowHandle);
             }
 
@@ -2167,8 +2150,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
             boolean focusChanged = false;
             if (win.canReceiveKeys()) {
-                focusChanged = updateFocusedWindowLocked(UPDATE_FOCUS_WILL_ASSIGN_LAYERS,
-                        false /*updateInputWindows*/);
+                focusChanged = updateFocusedWindowLocked(UPDATE_FOCUS_WILL_ASSIGN_LAYERS, false /*updateInputWindows*/);
                 if (focusChanged) {
                     imMayMove = false;
                 }
@@ -2189,9 +2171,7 @@ public class WindowManagerService extends IWindowManager.Stub
             }
             mInputMonitor.updateInputWindowsLw(false /*force*/);
 
-            if (localLOGV) Slog.v(
-                TAG, "New client " + client.asBinder()
-                + ": window=" + win);
+            if (localLOGV) Slog.v(TAG, "New client " + client.asBinder() + ": window=" + win);
             
             if (win.isVisibleOrAdding() && updateOrientationFromAppTokensLocked(false)) {
                 reportNewConfig = true;

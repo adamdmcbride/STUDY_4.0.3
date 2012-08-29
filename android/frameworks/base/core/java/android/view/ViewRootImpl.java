@@ -424,8 +424,7 @@ public final class ViewRootImpl extends Handler implements ViewParent,
                 attrs = mWindowAttributes;
                 
                 if (view instanceof RootViewSurfaceTaker) {
-                    mSurfaceHolderCallback =
-                            ((RootViewSurfaceTaker)view).willYouTakeTheSurface();
+                    mSurfaceHolderCallback = ((RootViewSurfaceTaker)view).willYouTakeTheSurface();
                     if (mSurfaceHolderCallback != null) {
                         mSurfaceHolder = new TakenSurfaceHolder();
                         mSurfaceHolder.setFormat(PixelFormat.UNKNOWN);
@@ -459,11 +458,9 @@ public final class ViewRootImpl extends Handler implements ViewParent,
                 mWindowAttributesChangesFlag = WindowManager.LayoutParams.EVERYTHING_CHANGED;
                 mAttachInfo.mRootView = view;
                 mAttachInfo.mScalingRequired = mTranslator != null;
-                mAttachInfo.mApplicationScale =
-                        mTranslator == null ? 1.0f : mTranslator.applicationScale;
+                mAttachInfo.mApplicationScale = mTranslator == null ? 1.0f : mTranslator.applicationScale;
                 if (panelParentView != null) {
-                    mAttachInfo.mPanelParentWindowToken
-                            = panelParentView.getApplicationWindowToken();
+                    mAttachInfo.mPanelParentWindowToken = panelParentView.getApplicationWindowToken();
                 }
                 mAdded = true;
                 int res; /* = WindowManagerImpl.ADD_OKAY; */
@@ -471,16 +468,16 @@ public final class ViewRootImpl extends Handler implements ViewParent,
                 // Schedule the first layout -before- adding to the window
                 // manager, to make sure we do the relayout before receiving
                 // any other events from the system.
+
+                // TODO: zhoukl:
                 requestLayout();
-                if ((mWindowAttributes.inputFeatures
-                        & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
+                if ((mWindowAttributes.inputFeatures & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
                     mInputChannel = new InputChannel();
                 }
                 try {
                     mOrigWindowType = mWindowAttributes.type;
-                    res = sWindowSession.add(mWindow, mSeq, mWindowAttributes,
-                            getHostVisibility(), mAttachInfo.mContentInsets,
-                            mInputChannel);
+                    // TODO: zhoukl:
+                    res = sWindowSession.add(mWindow, mSeq, mWindowAttributes, getHostVisibility(), mAttachInfo.mContentInsets, mInputChannel);
                 } catch (RemoteException e) {
                     mAdded = false;
                     mView = null;
@@ -510,49 +507,37 @@ public final class ViewRootImpl extends Handler implements ViewParent,
                     switch (res) {
                         case WindowManagerImpl.ADD_BAD_APP_TOKEN:
                         case WindowManagerImpl.ADD_BAD_SUBWINDOW_TOKEN:
-                            throw new WindowManagerImpl.BadTokenException(
-                                "Unable to add window -- token " + attrs.token
-                                + " is not valid; is your activity running?");
+                            throw new WindowManagerImpl.BadTokenException("Unable to add window -- token " + attrs.token + " is not valid; is your activity running?");
                         case WindowManagerImpl.ADD_NOT_APP_TOKEN:
-                            throw new WindowManagerImpl.BadTokenException(
-                                "Unable to add window -- token " + attrs.token
-                                + " is not for an application");
+                            throw new WindowManagerImpl.BadTokenException("Unable to add window -- token " + attrs.token + " is not for an application");
                         case WindowManagerImpl.ADD_APP_EXITING:
-                            throw new WindowManagerImpl.BadTokenException(
-                                "Unable to add window -- app for token " + attrs.token
-                                + " is exiting");
+                            throw new WindowManagerImpl.BadTokenException("Unable to add window -- app for token " + attrs.token + " is exiting");
                         case WindowManagerImpl.ADD_DUPLICATE_ADD:
-                            throw new WindowManagerImpl.BadTokenException(
-                                "Unable to add window -- window " + mWindow
-                                + " has already been added");
+                            throw new WindowManagerImpl.BadTokenException("Unable to add window -- window " + mWindow + " has already been added");
                         case WindowManagerImpl.ADD_STARTING_NOT_NEEDED:
                             // Silently ignore -- we would have just removed it
                             // right away, anyway.
                             return;
                         case WindowManagerImpl.ADD_MULTIPLE_SINGLETON:
-                            throw new WindowManagerImpl.BadTokenException(
-                                "Unable to add window " + mWindow +
-                                " -- another window of this type already exists");
+                            throw new WindowManagerImpl.BadTokenException("Unable to add window " + mWindow + " -- another window of this type already exists");
                         case WindowManagerImpl.ADD_PERMISSION_DENIED:
-                            throw new WindowManagerImpl.BadTokenException(
-                                "Unable to add window " + mWindow +
-                                " -- permission denied for this window type");
+                            throw new WindowManagerImpl.BadTokenException("Unable to add window " + mWindow + " -- permission denied for this window type");
                     }
-                    throw new RuntimeException(
-                        "Unable to add window -- unknown error code " + res);
+                    throw new RuntimeException("Unable to add window -- unknown error code " + res);
                 }
 
                 if (view instanceof RootViewSurfaceTaker) {
-                    mInputQueueCallback =
-                        ((RootViewSurfaceTaker)view).willYouTakeTheInputQueue();
+                    mInputQueueCallback = ((RootViewSurfaceTaker)view).willYouTakeTheInputQueue();
                 }
                 if (mInputChannel != null) {
                     if (mInputQueueCallback != null) {
                         mInputQueue = new InputQueue(mInputChannel);
                         mInputQueueCallback.onInputQueueCreated(mInputQueue);
                     } else {
-                        InputQueue.registerInputChannel(mInputChannel, mInputHandler,
-                                Looper.myQueue());
+                        // TODO: zhoukl: 一般会走到这里，向应用程序注册键盘消息接收通道
+                        // TODO: zhoukl: Looper.myQueue函数返回的便是应用程序主线程的消息队列，
+                        // TODO: zhoukl: 参数mInputHandler是一个回调对象，当有键盘事件发生时，这个mInputHandler的handleKey函数就会被调用
+                        InputQueue.registerInputChannel(mInputChannel, mInputHandler, Looper.myQueue());
                     }
                 }
 

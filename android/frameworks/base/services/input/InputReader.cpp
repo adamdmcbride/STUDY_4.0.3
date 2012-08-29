@@ -364,8 +364,7 @@ void InputReader::addDeviceLocked(nsecs_t when, int32_t deviceId) {
     if (device->isIgnored()) {
         LOGI("Device added: id=%d, name='%s' (ignored non-input device)", deviceId, name.string());
     } else {
-        LOGI("Device added: id=%d, name='%s', sources=0x%08x", deviceId, name.string(),
-                device->getSources());
+        LOGI("Device added: id=%d, name='%s', sources=0x%08x", deviceId, name.string(), device->getSources());
     }
 
     ssize_t deviceIndex = mDevices.indexOfKey(deviceId);
@@ -401,8 +400,7 @@ void InputReader::removeDeviceLocked(nsecs_t when, int32_t deviceId) {
     delete device;
 }
 
-InputDevice* InputReader::createDeviceLocked(int32_t deviceId,
-        const String8& name, uint32_t classes) {
+InputDevice* InputReader::createDeviceLocked(int32_t deviceId, const String8& name, uint32_t classes) {
     InputDevice* device = new InputDevice(&mContext, deviceId, name, classes);
 
     // External devices.
@@ -455,8 +453,7 @@ InputDevice* InputReader::createDeviceLocked(int32_t deviceId,
     return device;
 }
 
-void InputReader::processEventsForDeviceLocked(int32_t deviceId,
-        const RawEvent* rawEvents, size_t count) {
+void InputReader::processEventsForDeviceLocked(int32_t deviceId, const RawEvent* rawEvents, size_t count) {
     ssize_t deviceIndex = mDevices.indexOfKey(deviceId);
     if (deviceIndex < 0) {
         LOGW("Discarding event for unknown deviceId %d.", deviceId);
@@ -946,23 +943,15 @@ void InputDevice::process(const RawEvent* rawEvents, size_t count) {
     // in the order received.
     size_t numMappers = mMappers.size();
     for (const RawEvent* rawEvent = rawEvents; count--; rawEvent++) {
-#if DEBUG_RAW_EVENTS
-        LOGD("Input event: device=%d type=0x%04x scancode=0x%04x "
-                "keycode=0x%04x value=0x%08x flags=0x%08x",
-                rawEvent->deviceId, rawEvent->type, rawEvent->scanCode, rawEvent->keyCode,
-                rawEvent->value, rawEvent->flags);
-#endif
+        //LOGD("Input event: device=%d type=0x%04x scancode=0x%04x keycode=0x%04x value=0x%08x flags=0x%08x",
+          //      rawEvent->deviceId, rawEvent->type, rawEvent->scanCode, rawEvent->keyCode, rawEvent->value, rawEvent->flags);
 
         if (mDropUntilNextSync) {
             if (rawEvent->type == EV_SYN && rawEvent->scanCode == SYN_REPORT) {
                 mDropUntilNextSync = false;
-#if DEBUG_RAW_EVENTS
-                LOGD("Recovered from input event buffer overrun.");
-#endif
+                //LOGD("Recovered from input event buffer overrun.");
             } else {
-#if DEBUG_RAW_EVENTS
-                LOGD("Dropped input event while waiting for next input sync.");
-#endif
+                //LOGD("Dropped input event while waiting for next input sync.");
             }
         } else if (rawEvent->type == EV_SYN && rawEvent->scanCode == SYN_DROPPED) {
             LOGI("Detected input event buffer overrun for device %s.", mName.string());
@@ -1771,10 +1760,8 @@ int32_t SwitchInputMapper::getSwitchState(uint32_t sourceMask, int32_t switchCod
 
 // --- KeyboardInputMapper ---
 
-KeyboardInputMapper::KeyboardInputMapper(InputDevice* device,
-        uint32_t source, int32_t keyboardType) :
-        InputMapper(device), mSource(source),
-        mKeyboardType(keyboardType) {
+KeyboardInputMapper::KeyboardInputMapper(InputDevice* device, uint32_t source, int32_t keyboardType) :
+        InputMapper(device), mSource(source), mKeyboardType(keyboardType) {
 }
 
 KeyboardInputMapper::~KeyboardInputMapper() {
@@ -1857,8 +1844,7 @@ void KeyboardInputMapper::process(const RawEvent* rawEvent) {
     case EV_KEY: {
         int32_t scanCode = rawEvent->scanCode;
         if (isKeyboardOrGamepadKey(scanCode)) {
-            processKey(rawEvent->when, rawEvent->value != 0, rawEvent->keyCode, scanCode,
-                    rawEvent->flags);
+            processKey(rawEvent->when, rawEvent->value != 0, rawEvent->keyCode, scanCode, rawEvent->flags);
         }
         break;
     }
@@ -1866,8 +1852,7 @@ void KeyboardInputMapper::process(const RawEvent* rawEvent) {
 }
 
 bool KeyboardInputMapper::isKeyboardOrGamepadKey(int32_t scanCode) {
-    return scanCode < BTN_MOUSE
-        || scanCode >= KEY_OK
+    return scanCode < BTN_MOUSE || scanCode >= KEY_OK
         || (scanCode >= BTN_MISC && scanCode < BTN_MOUSE)
         || (scanCode >= BTN_JOYSTICK && scanCode < BTN_DIGI);
 }
@@ -1888,9 +1873,7 @@ void KeyboardInputMapper::processKey(nsecs_t when, bool down, int32_t keyCode,
             keyCode = mKeyDowns.itemAt(keyDownIndex).keyCode;
         } else {
             // key down
-            if ((policyFlags & POLICY_FLAG_VIRTUAL)
-                    && mContext->shouldDropVirtualKey(when,
-                            getDevice(), keyCode, scanCode)) {
+            if ((policyFlags & POLICY_FLAG_VIRTUAL) && mContext->shouldDropVirtualKey(when, getDevice(), keyCode, scanCode)) {
                 return;
             }
 
@@ -1910,8 +1893,7 @@ void KeyboardInputMapper::processKey(nsecs_t when, bool down, int32_t keyCode,
             mKeyDowns.removeAt(size_t(keyDownIndex));
         } else {
             // key was not actually down
-            LOGI("Dropping key up from device %s because the key was not down.  "
-                    "keyCode=%d, scanCode=%d",
+            LOGI("Dropping key up from device %s because the key was not down.  keyCode=%d, scanCode=%d",
                     getDeviceName().string(), keyCode, scanCode);
             return;
         }
@@ -1933,8 +1915,7 @@ void KeyboardInputMapper::processKey(nsecs_t when, bool down, int32_t keyCode,
     // For internal keyboards, the key layout file should specify the policy flags for
     // each wake key individually.
     // TODO: Use the input device configuration to control this behavior more finely.
-    if (down && getDevice()->isExternal()
-            && !(policyFlags & (POLICY_FLAG_WAKE | POLICY_FLAG_WAKE_DROPPED))) {
+    if (down && getDevice()->isExternal() && !(policyFlags & (POLICY_FLAG_WAKE | POLICY_FLAG_WAKE_DROPPED))) {
         policyFlags |= POLICY_FLAG_WAKE_DROPPED;
     }
 
@@ -1946,8 +1927,7 @@ void KeyboardInputMapper::processKey(nsecs_t when, bool down, int32_t keyCode,
         getContext()->fadePointer();
     }
 
-    NotifyKeyArgs args(when, getDeviceId(), mSource, policyFlags,
-            down ? AKEY_EVENT_ACTION_DOWN : AKEY_EVENT_ACTION_UP,
+    NotifyKeyArgs args(when, getDeviceId(), mSource, policyFlags, down ? AKEY_EVENT_ACTION_DOWN : AKEY_EVENT_ACTION_UP,
             AKEY_EVENT_FLAG_FROM_SYSTEM, keyCode, scanCode, newMetaState, downTime);
     getListener()->notifyKey(&args);
 }
@@ -3335,8 +3315,7 @@ void TouchInputMapper::process(const RawEvent* rawEvent) {
 
 void TouchInputMapper::sync(nsecs_t when) {
     // Sync button state.
-    mCurrentButtonState = mTouchButtonAccumulator.getButtonState()
-            | mCursorButtonAccumulator.getButtonState();
+    mCurrentButtonState = mTouchButtonAccumulator.getButtonState() | mCursorButtonAccumulator.getButtonState();
 
     // Sync scroll state.
     mCurrentRawVScroll = mCursorScrollAccumulator.getRelativeVWheel();
@@ -3346,22 +3325,16 @@ void TouchInputMapper::sync(nsecs_t when) {
     // Sync touch state.
     bool havePointerIds = true;
     mCurrentRawPointerData.clear();
+    // TODO: zhoukl: 子类来具体实现处理数据的功能，数据到:mCurrentRawPointerData->pointers
     syncTouch(when, &havePointerIds);
 
 #if DEBUG_RAW_EVENTS
     if (!havePointerIds) {
-        LOGD("syncTouch: pointerCount %d -> %d, no pointer ids",
-                mLastRawPointerData.pointerCount,
-                mCurrentRawPointerData.pointerCount);
+        LOGD("syncTouch: pointerCount %d -> %d, no pointer ids", mLastRawPointerData.pointerCount, mCurrentRawPointerData.pointerCount);
     } else {
-        LOGD("syncTouch: pointerCount %d -> %d, touching ids 0x%08x -> 0x%08x, "
-                "hovering ids 0x%08x -> 0x%08x",
-                mLastRawPointerData.pointerCount,
-                mCurrentRawPointerData.pointerCount,
-                mLastRawPointerData.touchingIdBits.value,
-                mCurrentRawPointerData.touchingIdBits.value,
-                mLastRawPointerData.hoveringIdBits.value,
-                mCurrentRawPointerData.hoveringIdBits.value);
+        LOGD("syncTouch: pointerCount %d -> %d, touching ids 0x%08x -> 0x%08x, hovering ids 0x%08x -> 0x%08x",
+                mLastRawPointerData.pointerCount, mCurrentRawPointerData.pointerCount, mLastRawPointerData.touchingIdBits.value,
+                mCurrentRawPointerData.touchingIdBits.value, mLastRawPointerData.hoveringIdBits.value, mCurrentRawPointerData.hoveringIdBits.value);
     }
 #endif
 
@@ -3383,8 +3356,7 @@ void TouchInputMapper::sync(nsecs_t when) {
 
         // Handle policy on initial down or hover events.
         uint32_t policyFlags = 0;
-        bool initialDown = mLastRawPointerData.pointerCount == 0
-                && mCurrentRawPointerData.pointerCount != 0;
+        bool initialDown = mLastRawPointerData.pointerCount == 0 && mCurrentRawPointerData.pointerCount != 0;
         bool buttonsPressed = mCurrentButtonState & ~mLastButtonState;
         if (initialDown || buttonsPressed) {
             // If this is a touch screen, hide the pointer on an initial down.
@@ -3414,6 +3386,7 @@ void TouchInputMapper::sync(nsecs_t when) {
         // Cook pointer data.  This call populates the mCurrentCookedPointerData structure
         // with cooked pointer data that has the same ids and indices as the raw data.
         // The following code can use either the raw or cooked data, as needed.
+        // TODO: zhoukl:
         cookPointerData();
 
         // Dispatch the touches either directly or by translation through a pointer on screen.
@@ -3467,6 +3440,7 @@ void TouchInputMapper::sync(nsecs_t when) {
             }
 
             dispatchHoverExit(when, policyFlags);
+            // TODO: zhoukl:
             dispatchTouches(when, policyFlags);
             dispatchHoverEnterAndMove(when, policyFlags);
         }
@@ -5544,8 +5518,7 @@ void SingleTouchInputMapper::syncTouch(nsecs_t when, bool* outHavePointerIds) {
         mCurrentRawPointerData.idToIndex[0] = 0;
 
         bool isHovering = mTouchButtonAccumulator.getToolType() != AMOTION_EVENT_TOOL_TYPE_MOUSE
-                && (mTouchButtonAccumulator.isHovering()
-                        || (mRawPointerAxes.pressure.valid
+                && (mTouchButtonAccumulator.isHovering() || (mRawPointerAxes.pressure.valid
                                 && mSingleTouchMotionAccumulator.getAbsolutePressure() <= 0));
         mCurrentRawPointerData.markIdBit(0, isHovering);
 

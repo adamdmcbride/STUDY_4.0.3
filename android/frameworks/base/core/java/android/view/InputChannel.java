@@ -32,8 +32,7 @@ public final class InputChannel implements Parcelable {
     
     private static final boolean DEBUG = false;
     
-    public static final Parcelable.Creator<InputChannel> CREATOR
-            = new Parcelable.Creator<InputChannel>() {
+    public static final Parcelable.Creator<InputChannel> CREATOR = new Parcelable.Creator<InputChannel>() {
         public InputChannel createFromParcel(Parcel source) {
             InputChannel result = new InputChannel();
             result.readFromParcel(source);
